@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-void main() => runApp(PrimeiroApp());
+void main() => runApp(const PrimeiroApp());
 class PrimeiroApp extends StatelessWidget {
   const PrimeiroApp({super.key});
 
