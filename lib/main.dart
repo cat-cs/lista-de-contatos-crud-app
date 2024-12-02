@@ -7,13 +7,14 @@ class PrimeiroApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Oi Flutter',
-        home: Scaffold(
-        appBar: AppBar(
-        title: const Text('Oi Flutter'),
-    ),
-    body: const Center( child: Text('Hello World'),
-    ),
-        ),
+        home: Home()
     );
+  }
+}
+
+class Home extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold();
   }
 }

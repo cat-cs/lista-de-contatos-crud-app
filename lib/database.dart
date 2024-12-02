@@ -18,15 +18,13 @@ return await openDatabase(
   onCreate: _onCreate,);}
 
 _onCreate(db, version) async{
-  await db.execute(_)
-
+  await db.execute(_contatos);
 }
 
-
-
-
-
-
-
-
+String get _contatos => """ 
+CREATE TABLE Contatos 
+(id INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,  
+ Nome VARCHAR(50)  NOT NULL),
+ Email VARCHAR(100),
+ Telefone BIGINT;""";
 }
