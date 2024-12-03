@@ -1,30 +1,86 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import '../models/contato.dart';
 
-class DB{
-DB._();
-static final DB instance = DB._();
+class DB {
+  DB._();
+  static final DB instance = DB._();
 
-static Database? _database;
+  static Database? _database;
 
-get database async {
-  if (_database != null) return _database;
-  return await _initDatabase();
+  // Ensure database is initialized
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDatabase();
+    return _database!;
   }
-_initDatabase() async{
-return await openDatabase(
-  join (await getDatabasesPath(), 'lista_contatos.db'),
-  version: 1,
-  onCreate: _onCreate,);}
 
-_onCreate(db, version) async{
-  await db.execute(_contatos);
-}
+  // Initialize the database
+  Future<Database> _initDatabase() async {
+    final dbPath = join(await getDatabasesPath(), 'lista_contatos.db');
+    print("Database path: $dbPath");  // Debug: Verificando o caminho do banco
+    return await openDatabase(
+      dbPath,
+      version: 1,
+      onCreate: _onCreate,
+    );
+  }
 
-String get _contatos => """ 
-CREATE TABLE Contatos 
-(id INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,  
- Nome VARCHAR(50)  NOT NULL),
- Email VARCHAR(100),
- Telefone BIGINT;""";
+  // Create the 'Contatos' table
+  _onCreate(Database db, int version) async {
+    await db.execute(_contatos);
+    print("Tabela 'Contatos' criada");  // Debug: Verificando a criação da tabela
+  }
+
+  String get _contatos => """ 
+  CREATE TABLE Contatos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,  
+    Nome TEXT NOT NULL,
+    Email TEXT,
+    Telefone TEXT
+  );
+  """;
+
+  // Create
+  static Future<int> insertContato(Contato contato) async {
+    final db = await instance.database;
+    int result = await db.insert('Contatos', contato.toMap());
+    print("Contato inserido: $result");  // Debug: Verificando a inserção
+    return result;
+  }
+
+  // Read
+  static Future<List<Contato>> getContatos() async {
+    final db = await instance.database;
+    final List<Map<String, dynamic>> maps = await db.query('Contatos');
+    print("Contatos lidos: $maps");  // Debug: Verificando os dados lidos
+    return List.generate(maps.length, (i) {
+      return Contato.fromMap(maps[i]);
+    });
+  }
+
+  // Update
+  static Future<int> updateContato(Contato contato) async {
+    final db = await instance.database;
+    int result = await db.update(
+      'Contatos',
+      contato.toMap(),
+      where: 'id = ?',
+      whereArgs: [contato.id],
+    );
+    print("Contato atualizado: $result");  // Debug: Verificando a atualização
+    return result;
+  }
+
+  // Delete
+  static Future<int> deleteContato(int id) async {
+    final db = await instance.database;
+    int result = await db.delete(
+      'Contatos',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    print("Contato excluído: $result");  // Debug: Verificando a exclusão
+    return result;
+  }
 }
