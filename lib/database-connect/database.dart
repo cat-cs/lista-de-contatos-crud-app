@@ -18,7 +18,7 @@ class DB {
   // Initialize the database
   Future<Database> _initDatabase() async {
     final dbPath = join(await getDatabasesPath(), 'lista_contatos.db');
-    print("Database path: $dbPath");  // Debug: Verificando o caminho do banco
+    // Debug: Verificando o caminho do banco
     return await openDatabase(
       dbPath,
       version: 1,
@@ -29,7 +29,7 @@ class DB {
   // Create the 'Contatos' table
   _onCreate(Database db, int version) async {
     await db.execute(_contatos);
-    print("Tabela 'Contatos' criada");  // Debug: Verificando a criação da tabela
+    // Debug: Verificando a criação da tabela
   }
 
   String get _contatos => """ 
@@ -45,7 +45,7 @@ class DB {
   static Future<int> insertContato(Contato contato) async {
     final db = await instance.database;
     int result = await db.insert('Contatos', contato.toMap());
-    print("Contato inserido: $result");  // Debug: Verificando a inserção
+    // Debug: Verificando a inserção
     return result;
   }
 
@@ -53,7 +53,7 @@ class DB {
   static Future<List<Contato>> getContatos() async {
     final db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query('Contatos');
-    print("Contatos lidos: $maps");  // Debug: Verificando os dados lidos
+    // Debug: Verificando os dados lidos
     return List.generate(maps.length, (i) {
       return Contato.fromMap(maps[i]);
     });
@@ -68,7 +68,7 @@ class DB {
       where: 'id = ?',
       whereArgs: [contato.id],
     );
-    print("Contato atualizado: $result");  // Debug: Verificando a atualização
+    // Debug: Verificando a atualização
     return result;
   }
 
@@ -80,7 +80,7 @@ class DB {
       where: 'id = ?',
       whereArgs: [id],
     );
-    print("Contato excluído: $result");  // Debug: Verificando a exclusão
+    // Debug: Verificando a exclusão
     return result;
   }
 }
