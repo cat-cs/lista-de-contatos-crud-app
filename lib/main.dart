@@ -158,7 +158,13 @@ class ContatosScreenState extends State<ContatosScreen> {
           final contato = _contatos[index];
           return ListTile(
             title: Text(contato.nome),
-            subtitle: Text(contato.telefone),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(contato.telefone),
+                  Text(contato.email),
+                ]
+              ),
             trailing: IconButton(
               icon: const Icon(Icons.delete),
               onPressed: () => _deleteContato(contato.id!),
