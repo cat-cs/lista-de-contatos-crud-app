@@ -3,11 +3,11 @@ import 'database-connect/database.dart';
 import 'models/contato.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const AppContatos());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class AppContatos extends StatelessWidget {
+  const AppContatos({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +22,7 @@ class MyApp extends StatelessWidget {
 class ContatosScreen extends StatefulWidget {
   const ContatosScreen({super.key});
 
-
   @override
-
   ContatosScreenState createState() => ContatosScreenState();
 }
 
@@ -42,57 +40,57 @@ class ContatosScreenState extends State<ContatosScreen> {
     _loadContatos();
   }
 
-  // Carregar contatos do banco de dados
-  void _loadContatos() async {
+  // Carregar contatos 
+  Future<void> _loadContatos() async {
     final contatos = await DB.getContatos();
     setState(() {
       _contatos = contatos;
     });
   }
 
+//////////////////////////////////////////////////////////////////////////
+  // Salvar ou editar contato
+ void _saveContato() async {
+  if (_formKey.currentState?.validate() ?? false) {
+    final nome = _nomeController.text;
+    final telefone = _telefoneController.text;
+    final email = _emailController.text;
 
-  void _saveContato() async {
-    if (_formKey.currentState?.validate() ?? false) {
-
-      Navigator.of(context).pop();
-
-      final nome = _nomeController.text;
-      final telefone = _telefoneController.text;
-      final email = _emailController.text;
-
-      if (_contatoEditando == null) {
-
-        final novoContato = Contato(nome: nome, telefone: telefone, email: email);
-        await DB.insertContato(novoContato);
-      } else {
-
-        final atualizadoContato = Contato(
-          id: _contatoEditando?.id,
-          nome: nome,
-          telefone: telefone,
-          email: email,
-        );
-        await DB.updateContato(atualizadoContato);
-      }
-
-
-      _nomeController.clear();
-      _telefoneController.clear();
-      _emailController.clear();
-
-
-      _loadContatos();
+    if (_contatoEditando == null) {
+      // Adicionar novo contato
+      final novoContato = Contato(nome: nome, telefone: telefone, email: email);
+      await DB.insertContato(novoContato);
+    } else {
+      // Atualizar contato 
+      final atualizadoContato = Contato(
+        id: _contatoEditando?.id,
+        nome: nome,
+        telefone: telefone,
+        email: email,
+      );
+      await DB.updateContato(atualizadoContato);
     }
+
+    // Limpar campos e atualizar lista
+    _nomeController.clear();
+    _telefoneController.clear();
+    _emailController.clear();
+    
+    // Recarregar contatos após inserção ou atualização
+    await _loadContatos();  // Garanta que a lista de contatos seja atualizada depois da operação
+
+    // Fechar o formulário
+    Navigator.of(context).pop();
   }
-
-
-  // Excluir um contato
+}
+/////////////////////////////////////////////////////////////////
+  // Excluir contato
   void _deleteContato(int id) async {
     await DB.deleteContato(id);
-    _loadContatos(); // Atualizar a lista de contatos
+    await _loadContatos(); 
   }
 
-  // Editar um contato
+  // Editar contato
   void _editContato(Contato contato) {
     setState(() {
       _contatoEditando = contato;
@@ -106,7 +104,7 @@ class ContatosScreenState extends State<ContatosScreen> {
     );
   }
 
-  // Construir o Formulário para adicionar ou editar
+  // Formulário para inserir dados
   Widget _buildForm() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -118,35 +116,22 @@ class ContatosScreenState extends State<ContatosScreen> {
             TextFormField(
               controller: _nomeController,
               decoration: const InputDecoration(labelText: 'Nome'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Insira o nome/apelido do contato';
-                }
-                return null;
-              },
+              validator: (value) => value?.isEmpty ?? true ? 'Nome obrigatório' : null,
             ),
             TextFormField(
               controller: _telefoneController,
               decoration: const InputDecoration(labelText: 'Telefone'),
               keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Insira o telefone do contato';
-                }
-                return null;
-              },
+              validator: (value) => value?.isEmpty ?? true ? 'Telefone obrigatório' : null,
             ),
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Insira o email do contato';
-                }
-                if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-                    .hasMatch(value)) {
-                  return 'Por favor, insira um email válido.';
+                if (value?.isEmpty ?? true) return 'Email obrigatório';
+                if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(value!)) {
+                  return 'Email inválido';
                 }
                 return null;
               },
@@ -162,6 +147,7 @@ class ContatosScreenState extends State<ContatosScreen> {
     );
   }
 
+  // Interface de usuário
   @override
   Widget build(BuildContext context) {
     return Scaffold(
